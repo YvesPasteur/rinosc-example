@@ -10,6 +10,8 @@ class Command extends \Cilex\Command\Command
 {
     const DEFAULT_POST_NUMBER = 5;
 
+    const SITE_URL = 'http://www.viedemerde.fr/';
+
     protected function configure()
     {
         $this
@@ -24,34 +26,96 @@ class Command extends \Cilex\Command\Command
 
         $output->writeln("<comment>You want $number posts.</comment>");
 
-        $crawler = $this->getPage($output);
-        $accumulator = $this->extractPosts($crawler, $number);
+        $accumulator = $this->extractAllPosts($output, $number);
 
-        foreach ($accumulator as $node) {
+        foreach ($accumulator as $index => $node) {
             /** @var \Symfony\Component\DomCrawler\Crawler $node */
             list($content, $day, $month, $year, $hour, $minute, $author) = $this->extractInfoFromNode($node);
-            $this->writePost($output, $content, $year, $month, $day, $hour, $minute, $author);
+            $output->writeln('=================');
+            $output->writeln("");
+            $output->writeln("n°" . ($index + 1));
+            $this->writePost($content, $year, $month, $day, $hour, $minute, $author, $output);
+            $output->writeln("");
         }
     }
 
     /**
+     * @param int $expectedNumberOfPosts Number of posts to retrieve from the website
      * @param OutputInterface $output
-     * @param $content
-     * @param $year
-     * @param $month
-     * @param $day
-     * @param $hour
-     * @param $minute
-     * @param $author
+     * @return array Collection of the postss
      */
-    protected function writePost(OutputInterface $output, $content, $year, $month, $day, $hour, $minute, $author)
+    protected function extractAllPosts($expectedNumberOfPosts, OutputInterface $output)
     {
-        $output->writeln('=================');
+        $accumulator = array();
+        $i = 0;
+        while (count($accumulator) < $expectedNumberOfPosts) {
+            $crawler = $this->getPage($i, $output);
+            $maxToRetrieve = $expectedNumberOfPosts - count($accumulator);
+            $accumulator = array_merge($accumulator, $this->extractPostsFromPage($crawler, $maxToRetrieve));
+            $i++;
+        }
+
+        return $accumulator;
+    }
+
+    /**
+     * @param int $offset Number of the page to request
+     * @param OutputInterface $output
+     * @return \Symfony\Component\DomCrawler\Crawler Requested page
+     */
+    protected function getPage($offset, OutputInterface $output)
+    {
+        /** @var \Goutte\Client $client */
+        $client = $this->getService('scrap.client');
+        $output->writeln("<comment>A moment please. I try to contact Mr VDM for the page $offset</comment>");
         $output->writeln("");
+
+        $param = "";
+        if ($offset > 0) {
+            $param = "?page=$offset";
+        }
+        $crawler = $client->request('GET', self::SITE_URL . $param);
+
+        $output->writeln("<comment>Ok, I have the answer. Next !</comment>");
+        $output->writeln("");
+
+        return $crawler;
+    }
+
+    /**
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler Page within are the posts
+     * @param int $postNumberToRetrieve Max number of post to retrieve from the page
+     * @return array Collection of nodes
+     */
+    protected function extractPostsFromPage($crawler, $postNumberToRetrieve)
+    {
+        $accumulator = array();
+        $crawler->filter('.post.article')->each(
+            function ($node, $i) use (&$accumulator, $postNumberToRetrieve) {
+                if ($i < $postNumberToRetrieve) {
+                    $accumulator[] = $node;
+                }
+            }
+        );
+
+        return $accumulator;
+    }
+
+    /**
+     * @param string $content Content of a post
+     * @param int $year
+     * @param int $month
+     * @param int $day
+     * @param int $hour
+     * @param int $minute
+     * @param string $author Author of the post
+     * @param OutputInterface $output
+     */
+    protected function writePost($content, $year, $month, $day, $hour, $minute, $author, OutputInterface $output)
+    {
         $output->writeln($content);
         $output->writeln("<info>Date : $year-$month-$day $hour:$minute</info>");
         $output->writeln("<info>Author : $author</info>");
-        $output->writeln("");
     }
 
     /**
@@ -71,41 +135,5 @@ class Command extends \Cilex\Command\Command
         list(, $day, $month, $year, $hour, $minute, $author) = $matches;
 
         return array($content, $day, $month, $year, $hour, $minute, $author);
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @return mixed
-     */
-    protected function getPage(OutputInterface $output)
-    {
-        $client = $this->getService('scrap.client');
-        $output->writeln("<comment>A moment please. I try to contact Mr VDM</comment>");
-        $output->writeln("");
-        $crawler = $client->request('GET', 'http://www.viedemerde.fr/');
-
-        $output->writeln("<comment>Ok, I have the answer. Have a good reading !</comment>");
-        $output->writeln("");
-
-        return $crawler;
-    }
-
-    /**
-     * @param $crawler
-     * @param $number
-     * @return array
-     */
-    protected function extractPosts($crawler, $number)
-    {
-        $accumulator = array();
-        $crawler->filter('.post.article')->each(
-            function ($node, $i) use (&$accumulator, $number) {
-                if ($i < $number) {
-                    $accumulator[] = $node;
-                }
-            }
-        );
-
-        return $accumulator;
     }
 }
