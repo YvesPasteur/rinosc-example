@@ -5,15 +5,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Command extends \Cilex\Command\Command
+class DisplayCommand extends \Cilex\Command\Command
 {
     const DEFAULT_POST_NUMBER = 5;
 
     protected function configure()
     {
         $this
-            ->setName('scrap')
-            ->setDescription('Scrap some posts on the vdm website')
+            ->setName('scrap:display')
+            ->setDescription('Scrap some posts on the vdm website to display in the console')
             ->addArgument('number', InputArgument::OPTIONAL, 'How many posts do you want ?', self::DEFAULT_POST_NUMBER);
     }
 

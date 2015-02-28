@@ -6,5 +6,6 @@ if (!$loader = include __DIR__.'/../vendor/autoload.php') {
 $app = new \Cilex\Application('Cilex');
 
 $app['scrap.client'] = new \Goutte\Client();
-$app->command(new \VdmScraping\Command());
+$app->command(new \VdmScraping\DisplayCommand());
+$app->command(new \VdmScraping\SaveCommand());
 $app->run();
