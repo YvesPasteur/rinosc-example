@@ -1,0 +1,2 @@
+GRANT ALL PRIVILEGES ON vdm.* TO 'api'@'localhost'IDENTIFIED BY 'foobar';
+FLUSH PRIVILEGES;

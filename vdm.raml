@@ -1,0 +1,60 @@
+#%RAML 0.8
+---
+title: vdm API
+baseUri: http://localhost:80/api/{version}
+version: v1
+/posts:
+    get:
+        queryParameter:
+            from:
+                displayName: From
+                type: string
+                description: A date to get only the younger posts
+                example: 2014-01-01
+                required: false
+            to:
+                displayName: To
+                type: string
+                description: A date to get only the older posts
+                example: 2014-01-01
+                required: false
+            author:
+                displayName: Author
+                type: string
+                description: An author name
+                example: Doe
+                required: false
+        responses:
+            200:
+                body:
+                    application/json:
+                        example: |
+                            {
+                                "posts": [
+                                    {
+                                        "id": 1,
+                                        "content": "Aujourd'hui, on m'a enfin dit que j'avais un accent anglais. Dommage que ça a été dit lors d'un cours d'espagnol. VDM",
+                                        "date": "2014-01-01 00:00:00",
+                                        "author": "cacahuete"
+                                    }
+                                ],
+                                "count": 1
+                            }
+    post:
+        responses:
+            201:
+    /{id}:
+        get:
+            responses:
+                200:
+                    body:
+                        application/json:
+                            example: |
+                                {
+                                    "post": {
+                                        "id": 1,
+                                        "content": "Aujourd'hui, on m'a enfin dit que j'avais un accent anglais. Dommage que ça a été dit lors d'un cours d'espagnol. VDM",
+                                        "date": "2014-01-01 00:00:00",
+                                        "author": "cacahuete"
+                                    }
+                                }
