@@ -10,7 +10,7 @@ class SaveCommand extends \Cilex\Command\Command
 {
     const DEFAULT_POST_NUMBER = 5;
 
-    const API_POST_URL = 'http://localhost:80/v1/posts/';
+    const API_POST_URL = 'http://localhost:80/api/v1/posts/';
 
     protected function configure()
     {

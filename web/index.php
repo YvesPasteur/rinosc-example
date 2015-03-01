@@ -18,6 +18,6 @@ $app->register(new Rinosc\RoutesBuilder\Provider(), array(
     'routes_builder.root_namespace' => 'Vdm\Api'
 ));
 $app->register(new Rinosc\ControllerProvider());
-$app->mount('/', $app['rinosc.controllerProvider']->buildRoutes());
+$app->mount('/api/', $app['rinosc.controllerProvider']->buildRoutes());
 
 $app->run();
