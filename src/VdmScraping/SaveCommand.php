@@ -4,12 +4,13 @@ namespace VdmScraping;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class SaveCommand extends \Cilex\Command\Command
 {
     const DEFAULT_POST_NUMBER = 5;
 
-    const API_POST_URL = 'http://localhost:80/api/v1/posts';
+    const API_POST_URL = 'http://localhost:80/v1/posts/';
 
     protected function configure()
     {
@@ -29,8 +30,13 @@ class SaveCommand extends \Cilex\Command\Command
 
         foreach ($accumulator as $index => $post) {
             /** @var \Symfony\Component\DomCrawler\Crawler $node */
-            $output->writeln("n°" . ($index + 1));
-            $this->savePost($post);
+            try {
+                $this->savePost($post);
+                $output->writeln("<info>Post saved : " . ($index + 1) . "</info>");
+            }
+            catch (\Exception $e) {
+                $output->writeln("<error>Post " . ($index + 1) . " not saved : " . $e->getMessage() . "</error>");
+            }
         }
     }
 
@@ -48,6 +54,8 @@ class SaveCommand extends \Cilex\Command\Command
 
     /**
      * @param Post $post
+     * @return int Status code
+     * @throws \Exception
      */
     protected function savePost(Post $post)
     {
@@ -59,5 +67,9 @@ class SaveCommand extends \Cilex\Command\Command
             'date' => $post->getDate()->format('Y-m-d H:i:s')
         );
         $client->request('POST', self::API_POST_URL, $params);
+
+        if ($client->getResponse()->getStatus() !== Response::HTTP_CREATED) {
+            throw new \Exception('Post not created, return status code : ' . $client->getResponse()->getStatus());
+        }
     }
 }

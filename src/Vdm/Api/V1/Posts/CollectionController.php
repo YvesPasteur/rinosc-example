@@ -21,8 +21,9 @@ class CollectionController
         $post = $this->instanciatePost($app);
         $post->completeFromArray(
           array(
-            'email' => $request->get('email'),
-            'name'  => $request->get('name')
+            'content' => $request->get('content'),
+            'author'  => $request->get('author'),
+              'date' => $request->get('date')
           )
         );
         $post->save();
@@ -36,7 +37,7 @@ class CollectionController
         $response->headers->set(
           "Location",
           $app['url_generator']->generate(
-            'posts.instance.get',
+            'v1.posts.instance.get',
             array('id' => $post->getId())
           )
         );

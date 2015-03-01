@@ -48,7 +48,7 @@ class Post
      */
     public function insert()
     {
-        $this->db->insert('post', $this->toArray());
+        $this->db->insert('posts', $this->toArray());
         $this->id = $this->db->lastInsertId();
 
         return $this;
