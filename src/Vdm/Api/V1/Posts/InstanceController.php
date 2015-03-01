@@ -22,7 +22,11 @@ class InstanceController
             );
         }
 
-        return $app->json($post->toArray(), Response::HTTP_OK);
+        $result = array(
+            "post" => $post->toArray()
+        );
+
+        return $app->json($result, Response::HTTP_OK);
     }
 
     /**

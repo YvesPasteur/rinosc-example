@@ -24,7 +24,12 @@ class CollectionController
 
         $posts->getAll();
 
-        return $app->json($posts->toArray(), Response::HTTP_OK);
+        $rawPosts = $posts->toArray();
+        $result = array(
+            "posts" => $rawPosts,
+            "count" => count($rawPosts)
+        );
+        return $app->json($result, Response::HTTP_OK);
     }
 
     public function postAction(Application $app, Request $request)
