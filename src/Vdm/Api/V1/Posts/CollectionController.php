@@ -15,6 +15,12 @@ class CollectionController
         if ($request->get('author')) {
             $posts->setAuthorFilter($request->get('author'));
         }
+        if ($request->get('from')) {
+            $posts->setFromDateFilter($request->get('from'));
+        }
+        if ($request->get('to')) {
+            $posts->setToDateFilter($request->get('to'));
+        }
 
         $posts->getAll();
 

@@ -12,6 +12,7 @@ class PostCollection
     private $modelFactory;
     private $posts = array();
     private $authorFilter;
+    private $dateFilter = array('from' => null, 'to' => null);
 
     public function __construct(Application $app)
     {
@@ -41,6 +42,27 @@ class PostCollection
     }
 
     /**
+     * @param string $date
+     * @return $this
+     */
+    public function setFromDateFilter($date)
+    {
+        $this->dateFilter['from'] = $date;
+        return $this;
+    }
+
+    /**
+     * @param string $date
+     * @return $this
+     */
+    public function setToDateFilter($date)
+    {
+        $this->dateFilter['to'] = $date;
+        return $this;
+    }
+
+
+    /**
      * @return array
      */
     public function toArray()
@@ -58,11 +80,26 @@ class PostCollection
      */
     private function getRawAll()
     {
-        $filter = "";
+        $filters = array();
         $params = array();
         if (! empty($this->authorFilter)) {
-            $filter = "WHERE author = :author";
+            $filters[] = "author = :author";
             $params['author'] = $this->authorFilter;
+        }
+
+        if (! empty($this->dateFilter['from'])) {
+            $filters[] = "date > :date_from";
+            $params['date_from'] = $this->dateFilter['from'];
+        }
+
+        if (! empty($this->dateFilter['to'])) {
+            $filters[] = "date < :date_to";
+            $params['date_to'] = $this->dateFilter['to'];
+        }
+
+        $filter = "";
+        if (! empty($filters)) {
+            $filter = 'WHERE ' . implode(' AND ', $filters);
         }
 
         $sql = "SELECT * FROM posts $filter ORDER BY id";
