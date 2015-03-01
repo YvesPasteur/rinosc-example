@@ -12,7 +12,8 @@
     ],
     "require": {
         "silex/silex": "~1.2",
-        "marmelab/microrest": "1.0.*@dev",
+        "symfony/finder": "2.6.4",
+        "doctrine/dbal": "2.5.1",
         "cilex/cilex": "1.0.*@dev",
         "fabpot/goutte": "2.0.*@dev"
     },
@@ -21,7 +22,10 @@
     },
     "autoload": {
         "psr-4": {
-            "VdmScraping\\": "src/VdmScraping/"
+            "VdmScraping\\": "src/VdmScraping/",
+            "Vdm\\": "src/Vdm",
+            "Rinosc\\": "src/Rinosc/",
+            "RinoscTests\\": "tests/Rinosc/"
         }
     }
 }

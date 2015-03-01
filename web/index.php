@@ -1,34 +1,23 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+/**
+ * @var Silex\Application $app
+ */
+$app = include __DIR__.'/../src/bootstrap.php';
 
-$app = new Silex\Application();
-$app['debug'] = true;
-
-$app->register(new Silex\Provider\ServiceControllerServiceProvider());
-$app->register(
-    new Silex\Provider\DoctrineServiceProvider(),
-    array(
-        'db.options' => array(
-            'dbname'   => 'vdm',
-            'user'     => 'api',
-            'password' => 'foobar',
-            'host'     => 'localhost',
-            'driver'   => 'pdo_mysql'
-        )
-    )
-);
+$app['model.post'] = $app->protect(function ($db) {
+    return new Vdm\Model\Post($db);
+});
+$app['model.postCollection'] = $app->protect(function ($db) {
+    return new Vdm\Model\PostCollection($db);
+});
 
 
-$app->register(
-    new Marmelab\Microrest\MicrorestServiceProvider(),
-    array(
-        'microrest.config_file' => __DIR__ . '/../vdm.raml',
-    )
-);
 
-// avoid error in MicrorestServiceProdiver... don't seem to be useful in our case
-$app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.options' => array('cache' => __DIR__.'/../var/cache/twig'),
+$app->register(new Rinosc\RoutesBuilder\Provider(), array(
+    'routes_builder.root' => __DIR__ . '/../src/Vdm/Api',
+    'routes_builder.root_namespace' => 'Vdm\Api'
 ));
+$app->register(new Rinosc\ControllerProvider());
+$app->mount('/', $app['rinosc.controllerProvider']->buildRoutes());
 
 $app->run();
