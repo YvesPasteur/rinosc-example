@@ -11,6 +11,11 @@ class CollectionController
     public function getAction(Application $app, Request $request)
     {
         $posts = $this->instanciatePostCollection($app);
+
+        if ($request->get('author')) {
+            $posts->setAuthorFilter($request->get('author'));
+        }
+
         $posts->getAll();
 
         return $app->json($posts->toArray(), Response::HTTP_OK);

@@ -5,9 +5,13 @@ use Silex\Application;
 
 class PostCollection
 {
+    /**
+     * @var \Doctrine\DBAL\Connection
+     */
     private $db;
     private $modelFactory;
     private $posts = array();
+    private $authorFilter;
 
     public function __construct(Application $app)
     {
@@ -23,6 +27,16 @@ class PostCollection
         $posts = $this->getRawAll();
         $this->posts = $this->getInstancedCollection($posts, $this->modelFactory);
 
+        return $this;
+    }
+
+    /**
+     * @param string $author
+     * @return $this
+     */
+    public function setAuthorFilter($author)
+    {
+        $this->authorFilter = $author;
         return $this;
     }
 
@@ -44,9 +58,16 @@ class PostCollection
      */
     private function getRawAll()
     {
-        $sql = "SELECT * FROM posts ORDER BY id";
+        $filter = "";
+        $params = array();
+        if (! empty($this->authorFilter)) {
+            $filter = "WHERE author = :author";
+            $params['author'] = $this->authorFilter;
+        }
 
-        return $this->db->fetchAll($sql);
+        $sql = "SELECT * FROM posts $filter ORDER BY id";
+
+        return $this->db->fetchAll($sql, $params);
     }
 
     /**
