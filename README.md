@@ -8,5 +8,5 @@ The rinosc-example project aims to provide a practical example of the Risnoc usa
 More informations here : http://www.ypasteur.fr/blog/
 
 To install the project, go to the root of the project and execute "./bin/install.sh".
-The installation script is very basic and take the hypothesis that a MariaDB client is available and the root
+The installation script is very basic and take the hypothesis that a MariaDB client is available and that the root
 account has no password.
